@@ -52,9 +52,9 @@ jobs:
     steps:
       - name: Configure sysctl limits
         run: |
-          sudo sysctl -w vm.swappiness=1
-          sudo sysctl -w fs.file-max=262144
-          sudo sysctl -w vm.max_map_count=262144
+          sysctl -w vm.swappiness=1
+          sysctl -w fs.file-max=262144
+          sysctl -w vm.max_map_count=262144
 
       - name: Runs Elasticsearch
         run: |
