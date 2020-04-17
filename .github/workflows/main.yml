@@ -9,7 +9,14 @@ on:
 jobs:
   test:
 
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Configure sysctl limits
+        run: |
+          sudo sysctl -w vm.swappiness=1
+          sudo sysctl -w fs.file-max=262144
+          sudo sysctl -w vm.max_map_count=262144
 
     container:
       image: gifmagazine/ruby:2.3
@@ -59,7 +66,7 @@ jobs:
           - 4444:4444
 
     steps:
-    - uses: actions/checkout@v2
-    - name: Test with RSpec
-      run: |
-        apk add curl
+      - uses: actions/checkout@v2
+      - name: Test with RSpec
+        run: |
+          apk add curl
