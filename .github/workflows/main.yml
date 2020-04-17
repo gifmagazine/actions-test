@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  # pull_request:
+  #   branches: [ develop, master ]
+  push:
+    branches: [ master ]
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+
+    container:
+      image: gifmagazine/ruby:2.3
+      env:
+        RAILS_ENV: test
+        USER: root
+        MYSQL_PWD: root
+        MYSQL_HOST: mysql_test
+
+    services:
+      redis:
+        image: redis:3-alpine
+        ports:
+          - 6379:6379
+
+      memcached:
+        image: memcached:1-alpine
+        ports:
+          - 11211:11211
+
+      mysql_test:
+        image: gifmagazine/mysql:5.6
+        env:
+          MYSQL_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+
+      elasticsearch_test:
+        image: blacktop/elasticsearch:6.6
+        env:
+          cluster.name: docker-cluster
+          node.name: node-1
+        ports:
+          - 9200:9200
+        options: --health-cmd="curl http://localhost:9200/_cluster/health" --health-interval=10s --health-timeout=5s --health-retries=10
+
+      fakesqs:
+        image: gifmagazine/fake-sqs
+        env:
+          VIRTUAL_HOST: fakesqs
+        ports:
+          - 9494:9494
+
+      selenium:
+        image: selenium/standalone-chrome-debug:3.8
+        ports:
+          - 4444:4444
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Test with RSpec
+      run: |
+        apk add curl
