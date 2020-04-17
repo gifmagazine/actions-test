@@ -11,8 +11,6 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    steps:
-
     container:
       image: gifmagazine/ruby:2.3
       env:
