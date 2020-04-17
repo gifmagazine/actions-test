@@ -12,11 +12,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Configure sysctl limits
-        run: |
-          sudo sysctl -w vm.swappiness=1
-          sudo sysctl -w fs.file-max=262144
-          sudo sysctl -w vm.max_map_count=262144
 
     container:
       image: gifmagazine/ruby:2.3
@@ -44,15 +39,6 @@ jobs:
         ports:
           - 3306:3306
 
-      elasticsearch_test:
-        image: gifmagazine/elasticsearch:6.6.2
-        env:
-          cluster.name: docker-cluster
-          node.name: node-1
-        ports:
-          - 9200:9200
-        options: --health-cmd="curl http://localhost:9200/_cluster/health" --health-interval=10s --health-timeout=5s --health-retries=10
-
       fakesqs:
         image: gifmagazine/fake-sqs
         env:
@@ -66,6 +52,28 @@ jobs:
           - 4444:4444
 
     steps:
+      - name: Configure sysctl limits
+        run: |
+          sudo sysctl -w vm.swappiness=1
+          sudo sysctl -w fs.file-max=262144
+          sudo sysctl -w vm.max_map_count=262144
+
+      - name: Runs Elasticsearch
+        run: |
+         docker run \
+            --name elasticsearch_test
+            --env cluster.name=docker-cluster \
+            --env node.name=node-1 \
+            --publish 9200:9200 \
+            --ulimit nofile=65536:65536 \
+            --ulimit memlock=-1:-1 \
+            --health-cmd "curl http://localhost:9200/_cluster/health"
+            --health-interval 10s
+            --health-timeout 5s
+            --health-retries 10
+            --detach \
+            gifmagazine/elasticsearch:6.6.2
+
       - uses: actions/checkout@v2
       - name: Test with RSpec
         run: |
