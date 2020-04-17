@@ -9,7 +9,7 @@ on:
 jobs:
   test:
 
-    runs-on: ubuntu-latest
+    runs-on: macos-latest
 
     container:
       image: gifmagazine/ruby:2.3
@@ -38,7 +38,7 @@ jobs:
           - 3306:3306
 
       elasticsearch_test:
-        image: blacktop/elasticsearch:6.6
+        image: gifmagazine/elasticsearch:6.6.2
         env:
           cluster.name: docker-cluster
           node.name: node-1
