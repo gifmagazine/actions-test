@@ -11,14 +11,6 @@ jobs:
 
     runs-on: ubuntu-latest
 
-    container:
-      image: gifmagazine/ruby:2.3
-      env:
-        RAILS_ENV: test
-        USER: root
-        MYSQL_PWD: root
-        MYSQL_HOST: mysql_test
-
     services:
       redis:
         image: redis:3-alpine
@@ -52,7 +44,10 @@ jobs:
     steps:
       - name: Configure sysctl limits
         run: |
-          sysctl -w vm.max_map_count=262144
+          sudo swapoff -a
+          sudo sysctl -w vm.swappiness=1
+          sudo sysctl -w fs.file-max=262144
+          sudo sysctl -w vm.max_map_count=262144
 
       - name: Runs Elasticsearch
         run: |
@@ -70,7 +65,17 @@ jobs:
             --detach \
             gifmagazine/elasticsearch:6.6.2
 
+      - name: Set up Ruby 2.4
+        uses: actions/setup-ruby@v1
+        with:
+          ruby-version: 2.4
+
       - uses: actions/checkout@v2
       - name: Test with RSpec
+        env:
+          RAILS_ENV: test
+          USER: root
+          MYSQL_PWD: root
+          MYSQL_HOST: mysql_test
         run: |
           apk add curl
