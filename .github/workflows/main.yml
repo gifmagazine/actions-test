@@ -52,16 +52,16 @@ jobs:
       - name: Runs Elasticsearch
         run: |
          docker run \
-            --name elasticsearch_test
+            --name elasticsearch_test \
             --env cluster.name=docker-cluster \
             --env node.name=node-1 \
             --publish 9200:9200 \
             --ulimit nofile=65536:65536 \
             --ulimit memlock=-1:-1 \
-            --health-cmd "curl http://localhost:9200/_cluster/health"
-            --health-interval 10s
-            --health-timeout 5s
-            --health-retries 10
+            --health-cmd "curl http://localhost:9200/_cluster/health" \
+            --health-interval 10s \
+            --health-timeout 5s \
+            --health-retries 10 \
             --detach \
             gifmagazine/elasticsearch:6.6.2
 
